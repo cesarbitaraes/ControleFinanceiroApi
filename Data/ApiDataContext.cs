@@ -13,10 +13,12 @@ public class ApiDataContext : DbContext
     
     public DbSet<Gasto>? Gastos { get; set; }
     public DbSet<TipoGasto>? TiposGastos { get; set; }
+    public DbSet<TipoPagamento>? TiposPagamentos { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new GastosMap());
         modelBuilder.ApplyConfiguration(new TiposGastosMap());
+        modelBuilder.ApplyConfiguration(new TiposPagamentosMap());
     }
 }

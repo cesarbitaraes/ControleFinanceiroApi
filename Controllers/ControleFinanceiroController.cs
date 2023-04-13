@@ -38,7 +38,7 @@ public class ControleFinanceiroController : ControllerBase
     }
 
     [HttpPost("v1/tipo_gasto")]
-    public async Task<IActionResult> PostGastosAsync(
+    public async Task<IActionResult> PostTiposGastosAsync(
         [FromServices] ApiDataContext context,
         [FromBody] TipoGastoViewModel model)
     {
@@ -67,5 +67,66 @@ public class ControleFinanceiroController : ControllerBase
             return StatusCode(500, new ResultViewModel<TipoGasto>("Falha interna no servidor."));
         }
     }
-        
+
+    [HttpGet("v1/tipo_gasto")]
+    public async Task<IActionResult> GetTiposGastosAsync(
+        [FromServices] ApiDataContext context)
+    {
+        try
+        {
+            var tiposGastos = await context.TiposGastos.ToListAsync();
+
+            return Ok(new ResultViewModel<List<TipoGasto>>(tiposGastos));
+        }
+        catch
+        {
+            return StatusCode(500, new ResultViewModel<List<TipoGasto>>("Falha interna no servidor."));
+        }
+    }
+
+    [HttpPost("v1/tipo_pagamento")]
+    public async Task<IActionResult> PostTipoPagamentoAsync(
+        [FromServices] ApiDataContext context,
+        [FromBody] TipoPagamentoViewModel model)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(new ResultViewModel<TipoPagamento>(ModelState.GetErrors()));
+        try
+        {
+            var tipoPagamento = new TipoPagamento
+            {
+                Id = 0,
+                Nome = model.Nome,
+                DiaVencimento = model.DiaVencimento
+            };
+
+            await context.TiposPagamentos!.AddAsync(tipoPagamento);
+            await context.SaveChangesAsync();
+            
+            return Created($"v1/tipo_gasto/{tipoPagamento.Id}", new ResultViewModel<TipoPagamento>(tipoPagamento));
+        }
+        catch (DbUpdateException ex)
+        {
+            return StatusCode(500, new ResultViewModel<TipoGasto>("Não foi possível incluir esse tipo de gasto"));
+        }
+        catch
+        {
+            return StatusCode(500, new ResultViewModel<TipoGasto>("Falha interna no servidor."));
+        }
+    }
+
+    [HttpGet("v1/tipo_pagamento")]
+    public async Task<IActionResult> GetTiposPagamentosAsync(
+        [FromServices] ApiDataContext context)
+    {
+        try
+        {
+            var tiposPagamentos = await context.TiposPagamentos.ToListAsync();
+            return Ok(new ResultViewModel<List<TipoPagamento>>(tiposPagamentos));
+        }
+        catch
+        {
+            return StatusCode(500, new ResultViewModel<List<TipoGasto>>("Falha interna no servidor."));
+        }
+    }
 }
